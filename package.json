@@ -4,6 +4,7 @@
   "description": "",
   "main": "",
   "scripts": {
+    "start": "node app.js",
     "dev": "webpack --watch --mode=development",
     "api": "nodemon -r esm ./app.js",
     "test": "echo \"Error: no test specified\" && exit 1"

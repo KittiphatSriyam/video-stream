@@ -16,11 +16,12 @@
     <canvas id="preview"></canvas>
     <div id="logger"></div>
 
-    <script src="./lib/socket.io.js"></script>
+    <script src="socket.io.js"></script>
     <script>
-      const canvas = document.getElementById("preview");
+      const socket = io();
 
-      let context = canvas.getContext("2d");
+      const canvas = document.getElementById("preview");
+      const context = canvas.getContext("2d");
       canvas.width = 800;
       canvas.height = 600;
 
@@ -42,6 +43,7 @@
 
       function viewVideo(video, context) {
         context.drawImage(video, 0, 0, context.width, context.height);
+        socket.emit("stream", canvas.toDataURL("image/webp"));
       }
 
       navigator.getUserMedia =
@@ -59,6 +61,9 @@
             var video = document.querySelector("video");
             video.srcObject = stream;
             video.onloadedmetadata = function (e) {
+              setInterval(function () {
+                viewVideo(video, context);
+              }, 500);
               loadCam(stream);
               video.play();
             };

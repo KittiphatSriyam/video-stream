@@ -1,10 +1,9 @@
-import { networkInterfaces } from 'os'
-import express from 'express'
 
+const os = require('os')
+const express = require('express')
 const app = express()
-const http = require('http').Server(app)
-const io = require('socket.io')(http)
-const nets = networkInterfaces();
+
+const nets = os.networkInterfaces();
 
 const results = {};
 const port = process.env.PORT || 3000
@@ -22,11 +21,16 @@ for (const name of Object.keys(nets)) {
     }
 }
 
-io.on('connection', socket => {
-    socket.on('stream', (stream) => {
-        socket.broadcast.emit('broadcast', stream);
-    });
-});
+
+
+// app.use((req, res, next) => {
+//     res.header('Access-Control-Allow-Origin', 'http://localhost:3000/')
+//     res.header('Access-Control-Allow-Methods', 'POST, GET, PUT, PATCH, DELETE, OPTIONS')
+//     res.header('Access-Control-Allow-Headers', 'Content-Type, Option, Authorization')
+//     return next()
+// })
+
+
 
 app.use(express.static(__dirname + "/public"))
 
@@ -34,6 +38,18 @@ app.get('/', function (req, res) {
     res.redirect('index.html')
 });
 
-app.listen(port, function () {
+const server = app.listen(port, function () {
     console.log(`server is : http://${results.Ethernet[0]}:${port}`);
+});
+
+const io = require('socket.io')(server)
+
+io.on('connection', socket => {
+    console.log('connection');
+    socket.on('stream', (stream) => {
+        socket.broadcast.emit('stream', stream);
+    });
+    socket.on('disconnect', (stream) => {
+        console.log('disconnect');
+    });
 });
